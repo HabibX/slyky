@@ -54,7 +54,7 @@ The first version focuses on Stellar testnet payments using **XLM** and **USDC**
 
 - **Live Demo:** *(coming soon)*
 - **Demo Video:** *(coming soon)*
-- **User Feedback Sheet:** *(coming soon)*
+- **User Feedback Sheet:** *- **User Feedback Sheet:** [Slyky MVP – User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLScebks7GmTMRizxKA-kLzxeH6MQ8xUlZrWGmBXMmr2zx0txyw/viewform?usp=dialog)*
 - **5+ Testnet Wallet Addresses:** *(coming soon)*
 
 ---
