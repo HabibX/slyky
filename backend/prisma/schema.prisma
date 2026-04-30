@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")    // pooler (used by Prisma Client by default)
+  directUrl = env("DIRECT_URL")      // direct connection for migrations
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  apiKeys   ApiKey[]
+  payments  Payment[]
+  createdAt DateTime  @default(now())
+}
+
+model ApiKey {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  key       String    @unique
+  type      String    // 'secret' (sk_) or 'publishable' (pk_)
+  createdAt DateTime  @default(now())
+  lastUsed  DateTime?
+}
+
+model Payment {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  amount         Decimal   @db.Decimal(20,7)
+  asset          String    // 'XLM', 'USDC'
+  network        String    // 'stellar'
+  status         String    // created, pending, processing, confirming, confirmed, failed, expired
+  address        String?
+  memo           String?
+  txHash         String?
+  confirmations  Int?      @default(0)
+  description    String?
+  callbackUrl    String?
+  expiresAt      DateTime
+  confirmedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Smart contract extensions (Phase 3)
+  paymentType    String    @default("simple")  // "simple", "escrow", "milestone", "split"
+  conditions     Json?
+  contractId     String?
+  contractState  Json?
+  metadata       Json?
+}
+
+model LedgerEntry {
+  id              String    @id @default(uuid())
+  debitAccountId  String
+  creditAccountId String
+  asset           String
+  amount          Decimal   @db.Decimal(20,7)
+  referenceType   String    // 'payment'
+  referenceId     String    // payment.id
+  createdAt       DateTime  @default(now())
+}
+
+model WebhookEndpoint {
+  id        String    @id @default(uuid())
+  userId    String
+  url       String
+  events    String[]
+  secret    String
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+}
+
+// Phase 3: audit table for smart contract events
+model ContractEvent {
+  id          String    @id @default(uuid())
+  contractId  String
+  eventName   String    // "Released", "MilestoneReached", "SplitExecuted"
+  data        Json
+  processed   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
