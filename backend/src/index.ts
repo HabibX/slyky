@@ -9,16 +9,17 @@ import { railRegistry } from './core/railRegistry';
 import { StellarXLMAdapter } from './adapters/stellar/StellarXLMAdapter';
 import { StellarUSDCAdapter } from './adapters/stellar/StellarUSDCAdapter';
 import { DetectionOrchestrator } from './services/detection';
+import paymentRoutes from './routes/payments';
 
-// ---------- 1. Register adapters ----------
+// Register adapters
 railRegistry.register(new StellarXLMAdapter());
 railRegistry.register(new StellarUSDCAdapter());
 
-// ---------- 2. Start detection ----------
+// Start detection
 const detector = new DetectionOrchestrator();
 detector.start();
 
-// ---------- 3. Express app ----------
+// Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -27,10 +28,11 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
-// Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+app.use('/v1/payments', paymentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Slyky backend running on port ${PORT}`);
