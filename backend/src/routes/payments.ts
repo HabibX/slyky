@@ -4,8 +4,9 @@ import { apiKeyAuth } from '../middleware/auth';
 
 const router = Router();
 
-// All routes require API key
-router.use(apiKeyAuth);
+// POST and GET list require auth
+router.post('/', apiKeyAuth, async (req, res) => { /* ... */ });
+router.get('/', apiKeyAuth, async (req, res) => { /* ... */ });
 
 // POST /v1/payments — Create a payment request
 router.post('/', async (req: Request, res: Response) => {
