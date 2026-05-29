@@ -15,10 +15,10 @@ export class StellarUSDCAdapter implements IRailAdapter {
   readonly requiredConfirmations = 1;
 
   private horizon: Horizon.Server;
-  private receivingPublicKey: string;
+  public receivingPublicKey: string;
 
   // Official Stellar testnet USDC issuer
-  private static USDC_ISSUER = 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5';
+  public static USDC_ISSUER = 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5';
 
   constructor() {
     const secret = process.env.STELLAR_RECEIVING_SECRET;
@@ -29,14 +29,16 @@ export class StellarUSDCAdapter implements IRailAdapter {
     this.receivingPublicKey = keypair.publicKey();
 
     this.horizon = new Horizon.Server(
-      process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org'
+      process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org',
+      { allowHttp: true }   // ← allow HTTP testnet proxies
     );
   }
 
   async generateReceiveAddress(paymentId: string): Promise<ReceiveAddress> {
+    const shortId = paymentId.replace(/-/g, '').substring(0, 22);
     return {
       address: this.receivingPublicKey,
-      memo: `slyky_usdc_${paymentId}`,
+      memo: `slyu_${shortId}`,
     };
   }
 

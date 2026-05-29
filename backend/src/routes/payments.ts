@@ -4,17 +4,12 @@ import { apiKeyAuth } from '../middleware/auth';
 
 const router = Router();
 
-// POST and GET list require auth
-router.post('/', apiKeyAuth, async (req, res) => { /* ... */ });
-router.get('/', apiKeyAuth, async (req, res) => { /* ... */ });
-
-// POST /v1/payments — Create a payment request
-router.post('/', async (req: Request, res: Response) => {
+// POST /v1/payments — Create a payment request (requires auth)
+router.post('/', apiKeyAuth, async (req: Request, res: Response) => {
   try {
     const { asset, network, amount, description, idempotencyKey } = req.body;
     const userId = (req as any).userId;
 
-    // Basic validation
     if (!asset || !network || !amount) {
       return res.status(400).json({ error: 'asset, network, and amount are required' });
     }
@@ -28,7 +23,6 @@ router.post('/', async (req: Request, res: Response) => {
       idempotencyKey,
     });
 
-    // Return only public fields
     return res.status(201).json({
       id: payment.id,
       asset: payment.asset,
@@ -46,32 +40,8 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /v1/payments/:id — Check payment status
-router.get('/:id', async (req: Request, res: Response) => {
-  try {
-    const payment = await paymentService.getPayment(req.params.id as string);
-    if (!payment) {
-      return res.status(404).json({ error: 'Payment not found' });
-    }
-
-    return res.json({
-      id: payment.id,
-      asset: payment.asset,
-      amount: payment.amount.toString(),
-      status: payment.status,
-      address: payment.address,
-      memo: payment.memo,
-      txHash: payment.txHash,
-      confirmedAt: payment.confirmedAt,
-      createdAt: payment.createdAt,
-    });
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /v1/payments — List payments (dashboard)
-router.get('/', async (req: Request, res: Response) => {
+// GET /v1/payments — List payments (requires auth)
+router.get('/', apiKeyAuth, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
     const limit = parseInt(req.query.limit as string) || 20;
@@ -92,6 +62,30 @@ router.get('/', async (req: Request, res: Response) => {
         confirmedAt: p.confirmedAt,
       }))
     );
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /v1/payments/:id — Check payment status (public, no auth required)
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const payment = await paymentService.getPayment(req.params.id as string);
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    return res.json({
+      id: payment.id,
+      asset: payment.asset,
+      amount: payment.amount.toString(),
+      status: payment.status,
+      address: payment.address,
+      memo: payment.memo,
+      txHash: payment.txHash,
+      confirmedAt: payment.confirmedAt,
+      createdAt: payment.createdAt,
+    });
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }

@@ -15,7 +15,7 @@ export class StellarXLMAdapter implements IRailAdapter {
   readonly requiredConfirmations = 1;
 
   private horizon: Horizon.Server;
-  private receivingPublicKey: string;
+  public receivingPublicKey: string;
 
   constructor() {
     const secret = process.env.STELLAR_RECEIVING_SECRET;
@@ -26,14 +26,17 @@ export class StellarXLMAdapter implements IRailAdapter {
     this.receivingPublicKey = keypair.publicKey();
 
     this.horizon = new Horizon.Server(
-      process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org'
+      process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org',
+      { allowHttp: true }   // ← allow HTTP testnet proxies
     );
   }
 
   async generateReceiveAddress(paymentId: string): Promise<ReceiveAddress> {
+    // Truncate UUID to fit within 28 bytes (sly_ + 22 chars = 26)
+    const shortId = paymentId.replace(/-/g, '').substring(0, 22);
     return {
       address: this.receivingPublicKey,
-      memo: `slyky_${paymentId}`,
+      memo: `sly_${shortId}`,
     };
   }
 

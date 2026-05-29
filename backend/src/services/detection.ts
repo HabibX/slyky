@@ -4,94 +4,97 @@ import { railRegistry } from '../core/railRegistry';
 import { paymentService } from './payment';
 import { StellarXLMAdapter } from '../adapters/stellar/StellarXLMAdapter';
 import { StellarUSDCAdapter } from '../adapters/stellar/StellarUSDCAdapter';
+import prisma from './database';
+
+const POLL_INTERVAL_MS = 10_000; // every 10 seconds
 
 export class DetectionOrchestrator {
   private xlmAdapter: StellarXLMAdapter;
   private usdcAdapter: StellarUSDCAdapter;
+  private horizonUrl: string;
 
   constructor() {
-    // Retrieve the adapters from the registry
     const xlm = railRegistry.getAdapter('XLM', 'stellar');
     const usdc = railRegistry.getAdapter('USDC', 'stellar');
-
     if (!xlm || !usdc) {
-      throw new Error('XLM or USDC adapter not registered. Did you register them first?');
+      throw new Error('Adapters not registered');
     }
-
     this.xlmAdapter = xlm as StellarXLMAdapter;
     this.usdcAdapter = usdc as StellarUSDCAdapter;
+    this.horizonUrl = process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org';
   }
 
-  /**
-   * Starts listening on both XLM and USDC adapters.
-   * When a transaction arrives, we look up the memo, find the matching payment,
-   * and confirm it.
-   */
   start(): void {
-    console.log('[DetectionOrchestrator] Starting detection for XLM and USDC...');
-
-    this.xlmAdapter.startListening(async (tx) => {
-      await this.handleIncomingTransaction(tx);
-    });
-
-    this.usdcAdapter.startListening(async (tx) => {
-      await this.handleIncomingTransaction(tx);
-    });
+    console.log('[DetectionOrchestrator] Starting polling detection every 10s...');
+    this.poll();
+    setInterval(() => this.poll(), POLL_INTERVAL_MS);
   }
 
-  /**
-   * Handles a single normalized transaction.
-   * 1. Fetch memo from the Stellar transaction (if missing)
-   * 2. Find the payment by memo
-   * 3. Confirm the payment and record in ledger
-   */
-  private async handleIncomingTransaction(tx: any): Promise<void> {
-    console.log(`[DetectionOrchestrator] Processing tx: ${tx.txHash}`);
+  private async poll(): Promise<void> {
+    const publicKey = this.xlmAdapter.receivingPublicKey;
+    if (!publicKey) return;
 
-    // If memo is undefined, fetch transaction status to get memo
-    let memo = tx.memo;
-    if (!memo) {
-      try {
-        const adapter = railRegistry.getAdapter(tx.asset, 'stellar');
-        if (adapter) {
-          const status = await adapter.getTransactionStatus(tx.txHash);
-          memo = (status as any).memo;
-        }
-      } catch (err) {
-        console.error(`Failed to fetch memo for tx ${tx.txHash}:`, err);
+    try {
+      const url = `${this.horizonUrl}/accounts/${publicKey}/payments?order=desc&limit=10`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error(`Horizon poll failed: ${response.status}`);
         return;
       }
-    }
+      const data: any = await response.json();
+      const records = data._embedded?.records ?? [];
 
-    if (!memo) {
-      console.log(`No memo found for tx ${tx.txHash}; skipping.`);
-      return;
-    }
+      for (const payment of records) {
+        if (payment.transaction_successful !== true) continue;
 
-    // Find payment by memo
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    const payment = await prisma.payment.findFirst({
-      where: { memo: memo, status: 'pending' },
-    });
+        // Try to get memo directly (it won't be here, but we keep the check)
+        let memo = payment.transaction?.memo;
 
-    if (!payment) {
-      console.log(`No pending payment found for memo ${memo}; skipping.`);
-      return;
-    }
+        // If memo is missing, fetch the full transaction to get memo
+        if (!memo) {
+          try {
+            const status = await this.xlmAdapter.getTransactionStatus(payment.transaction_hash);
+            memo = (status as any).memo;
+          } catch (err) {
+            console.error(`Failed to fetch memo for tx ${payment.transaction_hash}:`, err);
+            continue;
+          }
+        }
 
-    // Confirm the payment
-    try {
-      const confirmed = await paymentService.confirmPayment(
-        payment.id,
-        tx.txHash,
-        tx.amount,
-        tx.asset,
-        tx.from,
-      );
-      console.log(`[DetectionOrchestrator] Payment ${payment.id} confirmed.`);
+        if (!memo) continue;
+
+        const pendingPayment = await prisma.payment.findFirst({
+          where: { memo, status: 'pending' },
+        });
+        if (!pendingPayment) continue;
+
+        let asset = 'XLM';
+        if (payment.asset_type !== 'native') {
+          if (
+            payment.asset_code === 'USDC' &&
+            payment.asset_issuer === StellarUSDCAdapter.USDC_ISSUER
+          ) {
+            asset = 'USDC';
+          } else {
+            continue;
+          }
+        }
+
+        try {
+          await paymentService.confirmPayment(
+            pendingPayment.id,
+            payment.transaction_hash,
+            payment.amount,
+            asset,
+            payment.from,
+          );
+          console.log(`[DetectionOrchestrator] Confirmed payment ${pendingPayment.id}`);
+        } catch (err) {
+          console.error(`Failed to confirm payment ${pendingPayment.id}:`, err);
+        }
+      }
     } catch (err) {
-      console.error(`Failed to confirm payment ${payment.id}:`, err);
+      console.error('[DetectionOrchestrator] Polling error:', err);
     }
   }
 }
