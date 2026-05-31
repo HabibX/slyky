@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 interface PaymentItem {
   id: string;
@@ -21,7 +22,7 @@ function Dashboard() {
   const fetchPayments = async () => {
     if (!submittedKey) return;
     try {
-      const res = await fetch('http://localhost:3000/v1/payments', {
+      const res = await fetch(`${API_URL}/v1/payments`, {
         headers: {
           Authorization: `Bearer ${submittedKey}`,
         },

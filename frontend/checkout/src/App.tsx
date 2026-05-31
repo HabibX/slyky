@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 interface PaymentData {
   id: string;
@@ -25,9 +26,8 @@ function App() {
   const fetchPayment = async () => {
     if (!paymentId) return;
     try {
-      const res = await fetch(`http://localhost:3000/v1/payments/${paymentId}`, {
+      const res = await fetch(`${API_URL}/v1/payments/${paymentId}`, {
         headers: {
-          // No auth needed for public checkout; in production, use a publishable key
           Authorization: `Bearer pk_live_placeholder`,
         },
       });

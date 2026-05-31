@@ -24,8 +24,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(helmet());
+// app.use(cors({
+//   origin: 'http://localhost:5173', // frontend dev server
+//   credentials: true,
+// }));
 app.use(cors({
-  origin: 'http://localhost:5173', // frontend dev server
+  origin: [
+    'http://localhost:5173',
+    'https://YOUR_RENDER_FRONTEND_URL.onrender.com'  // replace after deployment
+  ],
   credentials: true,
 }));
 app.use(morgan('dev'));
