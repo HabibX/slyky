@@ -31,7 +31,7 @@ app.use(helmet());
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://YOUR_RENDER_FRONTEND_URL.onrender.com'  // replace after deployment
+    'https://slyky-app.onrender.com'  // replace after deployment
   ],
   credentials: true,
 }));
