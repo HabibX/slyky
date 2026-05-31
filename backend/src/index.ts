@@ -31,10 +31,11 @@ app.use(helmet());
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://slyky-app.onrender.com'  // replace after deployment
+    'https://slyky-app.onrender.com'
   ],
   credentials: true,
 }));
+app.options('*', cors());
 app.use(morgan('dev'));
 app.use(express.json());
 

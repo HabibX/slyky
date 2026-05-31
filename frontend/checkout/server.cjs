@@ -4,10 +4,15 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Health-check endpoint (must be BEFORE the static/catch‑all)
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Serve static files from the Vite build output
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Fallback to index.html for any non‑static route (SPA routing)
+// Catch‑all: for any route not matched above, serve index.html (SPA fallback)
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
