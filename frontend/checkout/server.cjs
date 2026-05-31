@@ -7,8 +7,8 @@ const PORT = process.env.PORT || 3000;
 // Serve static files from the Vite build output
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// For all other routes, serve index.html (SPA fallback)
-app.get('*', (req, res) => {
+// Fallback to index.html for any non‑static route (SPA routing)
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
