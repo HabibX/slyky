@@ -24,19 +24,30 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(helmet());
-// app.use(cors({
-//   origin: 'http://localhost:5173', // frontend dev server
-//   credentials: true,
-// }));
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://slyky-app.onrender.com'   // frontend URL, not the backend
-  ],
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-}));
+const corsOptions = {
+    origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+        // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+        if (!origin) return callback(null, true);
+
+        const allowedOrigins = [
+            'https://slyky-app.onrender.com',   // your frontend
+            'http://localhost:5173',            // local frontend
+        ];
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.warn(`⚠️  CORS blocked origin: ${origin}`);
+            callback(null, false);
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 86400   // 24 hours
+};
+
+app.use(cors(corsOptions));
 app.use(morgan('dev'));
 app.use(express.json());
 
