@@ -31,8 +31,10 @@ app.use(helmet());
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://slyky-app.onrender.com'
+    'https://slyky-app.onrender.com'   // frontend URL, not the backend
   ],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
 app.use(morgan('dev'));
