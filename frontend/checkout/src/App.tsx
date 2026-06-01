@@ -128,6 +128,14 @@ function App() {
           <p className="text-sm text-gray-400">Waiting for confirmation…</p>
         )}
       </div>
+      <a
+          href={`https://albedo.link/pay?destination=${encodeURIComponent(payment.address)}&memo=${encodeURIComponent(payment.memo)}&network=testnet`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline text-sm"
+        >
+        Use Albedo? Pay with Albedo
+      </a>
     </div>
   );
 }
