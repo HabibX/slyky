@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 interface PaymentItem {
   id: string;
@@ -13,11 +12,18 @@ interface PaymentItem {
   confirmedAt?: string;
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 function Dashboard() {
   const [apiKey, setApiKey] = useState('');
   const [submittedKey, setSubmittedKey] = useState('');
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [error, setError] = useState('');
+
+  // New state for creating a payment
+  const [createAmount, setCreateAmount] = useState('');
+  const [createDescription, setCreateDescription] = useState('');
+  const [newPaymentId, setNewPaymentId] = useState<string | null>(null);
 
   const fetchPayments = async () => {
     if (!submittedKey) return;
@@ -38,20 +44,49 @@ function Dashboard() {
 
   useEffect(() => {
     fetchPayments();
-    // Refresh every 10 seconds
     const interval = setInterval(fetchPayments, 10000);
     return () => clearInterval(interval);
   }, [submittedKey]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmitKey = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittedKey(apiKey);
+  };
+
+  // Create a new payment
+  const handleCreatePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createAmount) return;
+    try {
+      const res = await fetch(`${API_URL}/v1/payments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${submittedKey}`,
+        },
+        body: JSON.stringify({
+          asset: 'XLM',
+          network: 'stellar',
+          amount: createAmount,
+          description: createDescription || undefined,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to create payment.');
+      const newPayment: PaymentItem = await res.json();
+      setNewPaymentId(newPayment.id);
+      setCreateAmount('');
+      setCreateDescription('');
+      // Refresh the list
+      fetchPayments();
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   if (!submittedKey) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
+        <form onSubmit={handleSubmitKey} className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
           <h1 className="text-2xl font-bold mb-4">Slyky Dashboard</h1>
           <label className="block text-sm text-gray-600 mb-2">Enter your secret API key</label>
           <input
@@ -65,7 +100,6 @@ function Dashboard() {
           <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition w-full">
             View Payments
           </button>
-          <p className="text-xs text-gray-400 mt-2">Your key is never stored on the server or in the browser permanently.</p>
         </form>
       </div>
     );
@@ -75,7 +109,49 @@ function Dashboard() {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Payment History</h1>
+
+        {/* Create Payment Section */}
+        <div className="bg-white p-6 rounded-2xl shadow mb-8">
+          <h2 className="text-xl font-semibold mb-4">Create New Payment</h2>
+          <form onSubmit={handleCreatePayment} className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="number"
+              step="any"
+              placeholder="Amount (XLM)"
+              value={createAmount}
+              onChange={(e) => setCreateAmount(e.target.value)}
+              className="border border-gray-300 rounded-xl px-4 py-2 flex-1"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Description (optional)"
+              value={createDescription}
+              onChange={(e) => setCreateDescription(e.target.value)}
+              className="border border-gray-300 rounded-xl px-4 py-2 flex-1"
+            />
+            <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 transition">
+              Create Payment
+            </button>
+          </form>
+          {newPaymentId && (
+            <div className="mt-4 text-center">
+              <a
+                href={`/?id=${newPaymentId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                Open Checkout Page for this payment ↗
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* Error message */}
         {error && <p className="text-red-500 mb-4">{error}</p>}
+
+        {/* Payment list */}
         {payments.length === 0 ? (
           <p className="text-gray-500">No payments found.</p>
         ) : (
@@ -88,12 +164,13 @@ function Dashboard() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Checkout</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {payments.map((p) => (
                   <tr key={p.id}>
-                    <td className="px-6 py-4 text-sm font-mono truncate max-w-[200px]">{p.id}</td>
+                    <td className="px-6 py-4 text-sm font-mono truncate max-w-[150px]">{p.id}</td>
                     <td className="px-6 py-4 text-sm">{p.asset}</td>
                     <td className="px-6 py-4 text-sm">{p.amount}</td>
                     <td className="px-6 py-4 text-sm">
@@ -104,6 +181,11 @@ function Dashboard() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">{new Date(p.createdAt).toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <a href={`/?id=${p.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                        Pay ↗
+                      </a>
+                    </td>
                   </tr>
                 ))}
               </tbody>
