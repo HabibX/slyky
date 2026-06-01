@@ -100,6 +100,10 @@ function Dashboard() {
           <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition w-full">
             View Payments
           </button>
+          <p className="text-sm text-gray-400 mt-2">
+            Don't have a key?{' '}
+            <a href="/register" className="text-blue-600 underline">Create one here</a>
+          </p>
         </form>
       </div>
     );

@@ -11,6 +11,8 @@ import { StellarUSDCAdapter } from './adapters/stellar/StellarUSDCAdapter';
 import { DetectionOrchestrator } from './services/detection';
 import paymentRoutes from './routes/payments';
 
+import registerRoutes from './routes/register';
+
 // Register adapters
 railRegistry.register(new StellarXLMAdapter());
 railRegistry.register(new StellarUSDCAdapter());
@@ -56,6 +58,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/v1/payments', paymentRoutes);
+app.use('/v1/register', registerRoutes);
 
 app.listen(PORT, () => {
   console.log(`Slyky backend running on port ${PORT}`);
