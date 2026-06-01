@@ -44,8 +44,9 @@ function App() {
     if (payment && payment.address) {
       const destination = encodeURIComponent(payment.address);
       const memo = encodeURIComponent(payment.memo);
-      // Use the standard Stellar payment URI (SEP-0007)
+      // Standard Stellar SEP‑0007 payment URI
       const stellarUri = `stellar:pay?destination=${destination}&memo=${memo}&network=testnet`;
+
       QRCode.toString(stellarUri, { type: 'svg', width: 256 }, (err, svg) => {
         if (!err) setQrSvg(svg);
       });
