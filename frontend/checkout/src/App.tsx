@@ -42,7 +42,9 @@ function App() {
   // Generate QR code when payment data arrives
   useEffect(() => {
     if (payment && payment.address) {
-      const stellarUri = `web+stellar:pay?destination=${payment.address}&memo=${payment.memo}`;
+      const destination = encodeURIComponent(payment.address);
+      const memo = encodeURIComponent(payment.memo);
+      const stellarUri = `web+stellar:pay?destination=${destination}&memo=${memo}&network=testnet`;
       QRCode.toString(stellarUri, { type: 'svg', width: 256 }, (err, svg) => {
         if (!err) setQrSvg(svg);
       });
