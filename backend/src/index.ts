@@ -32,8 +32,10 @@ const corsOptions = {
         if (!origin) return callback(null, true);
 
         const allowedOrigins = [
-            'https://slyky-app.onrender.com',   // your frontend
-            'http://localhost:5173',            // local frontend
+            'https://slyky-app.onrender.com',
+            'http://localhost:5173',            
+            'https://slyky.mehd.site',
+            'https://www.slyky.mehd.site'
         ];
 
         if (allowedOrigins.indexOf(origin) !== -1) {
