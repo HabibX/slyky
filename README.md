@@ -53,7 +53,7 @@ Slyky is built to make receiving global payments simpler, faster, and more acces
 
 ## 🔗 Required Blue Belt Links
 
-- **Live Frontend:** [https://slyky-app.onrender.com](https://slyky-app.onrender.com)
+- **Live Frontend:** [https://slyky.app](https://slyky.app)
 - **Live Backend API:** [https://slyky.onrender.com](https://slyky.onrender.com)
 - **Demo Video:** *(coming soon – add link after recording)*
 - **User Feedback Sheet:** [Slyky MVP – User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLScebks7GmTMRizxKA-kLzxeH6MQ8xUlZrWGmBXMmr2zx0txyw/viewform?usp=dialog)
