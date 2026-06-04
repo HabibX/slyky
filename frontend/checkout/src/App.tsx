@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 interface PaymentData {
@@ -19,7 +20,6 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [qrSvg, setQrSvg] = useState<string>('');
 
-  // Extract payment ID from URL query string
   const params = new URLSearchParams(window.location.search);
   const paymentId = params.get('id');
 
@@ -45,6 +45,7 @@ function App() {
       const destination = encodeURIComponent(payment.address);
       const memo = encodeURIComponent(payment.memo);
       const stellarUri = `web+stellar:pay?destination=${destination}&memo=${memo}&network=testnet`;
+
       QRCode.toString(stellarUri, { type: 'svg', width: 256 }, (err, svg) => {
         if (!err) setQrSvg(svg);
       });
@@ -53,7 +54,6 @@ function App() {
 
   useEffect(() => {
     fetchPayment();
-    // Poll every 5 seconds until confirmed
     const interval = setInterval(() => {
       if (payment?.status !== 'confirmed') {
         fetchPayment();
@@ -62,12 +62,44 @@ function App() {
     return () => clearInterval(interval);
   }, [paymentId]);
 
+  // ====== LANDING PAGE (no ?id= present) ======
   if (!paymentId) {
-    return <div className="text-red-500">Missing payment ID in URL (?id=...)</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white p-10 rounded-2xl shadow-xl max-w-lg w-full text-center">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Slyky</h1>
+          <p className="text-lg text-gray-500 mb-6">
+            Accept crypto payments easily — powered by Stellar.
+          </p>
+          <p className="text-gray-600 mb-8">
+            A payment reception platform built for developers, freelancers, and businesses,
+            especially in underserved markets.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="/dashboard"
+              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition font-medium"
+            >
+              Go to Dashboard
+            </a>
+            <a
+              href="/register"
+              className="inline-block border border-blue-600 text-blue-600 px-6 py-3 rounded-xl hover:bg-blue-50 transition font-medium"
+            >
+              Create Account
+            </a>
+          </div>
+          <p className="mt-8 text-xs text-gray-400">
+            Blue Belt Project — Stellar Journey to Mastery
+          </p>
+        </div>
+      </div>
+    );
   }
 
+  // ====== CHECKOUT PAGE (when ?id= is present) ======
   if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
+    return <div className="text-red-500">{`Error: ${error}`}</div>;
   }
 
   if (!payment) {
