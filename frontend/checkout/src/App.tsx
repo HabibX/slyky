@@ -318,6 +318,10 @@ if (!paymentId) {
               Your feedback will directly influence future development and Blue Belt submission.
             </p>
           </div>
+        ) : payment.status === 'failed' || payment.status === 'expired' ? (
+          <div className="text-red-600 font-bold text-lg mb-4">
+            ❌ Payment {payment.status}
+          </div>
         ) : (
           <div className="text-yellow-600 font-bold text-lg mb-4">
             ⏳ Awaiting payment…

@@ -14,6 +14,18 @@ interface PaymentItem {
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+const statusStyle = (status: string) => {
+  switch (status) {
+    case 'confirmed': return 'bg-green-100 text-green-800';
+    case 'failed':
+    case 'expired':   return 'bg-red-100 text-red-800';
+    case 'processing':
+    case 'confirming': return 'bg-blue-100 text-blue-800';
+    case 'created':    return 'bg-gray-100 text-gray-800';
+    default:           return 'bg-yellow-100 text-yellow-800'; // pending or unknown
+  }
+};
+
 function Dashboard() {
   const [apiKey, setApiKey] = useState('');
   const [submittedKey, setSubmittedKey] = useState('');
@@ -178,9 +190,7 @@ function Dashboard() {
                     <td className="px-6 py-4 text-sm">{p.asset}</td>
                     <td className="px-6 py-4 text-sm">{p.amount}</td>
                     <td className="px-6 py-4 text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                        p.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${statusStyle(p.status)}`}>
                         {p.status}
                       </span>
                     </td>
