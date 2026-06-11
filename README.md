@@ -1,116 +1,149 @@
-# Slyky
+# SLYKY
 
-> Payment reception platform for developers, freelancers, and businesses — powered by Stellar.
+> Payment Collection Infrastructure on Stellar
 
-Slyky is built to make receiving global payments simpler, faster, and more accessible, especially for underserved markets.
-
-⚠️ **Currently under active development for the Stellar Journey to Mastery – Blue Belt Challenge.**
+**Currently running the Testnet Validation Campaign**  
+🚀 Part of the Stellar Journey to Mastery — Blue Belt Challenge
 
 ---
 
-## 🚀 MVP Features (Phase 1 – Stellar Testnet)
+## 📢 Validation Campaign Status
 
-- ✅ REST API to create payment requests (XLM, USDC)
-- ✅ Unique Stellar address + memo per payment (28‑byte limit compatible)
-- ✅ Automatic payment detection via Horizon polling (10‑second interval)
-- ✅ Hosted checkout page with QR code (SEP‑0007 standard), live status, and feedback link
-- ✅ Payment history dashboard with API key entry and payment creation form
-- ✅ User registration endpoint to generate API keys
-- ✅ Double‑entry ledger for balance tracking
-- ✅ Public registration flow: users can sign up via the frontend and get their API key
+| 🎯 Target | 📊 Progress |
+|-----------|-------------|
+| Stellar Testers | 0 / 20 |
+| Feedback Forms | 0 / 15 |
+| Detailed Reviews | 0 / 5 |
+| Public Comments | 0 / 3 |
+| Video Testimonials | 0 / 2 |
 
-**Status:** 🟢 MVP Complete & Deployed  
-**Current Focus:** User feedback collection, final submission
+**🟢 MVP Complete** — **🔄 Actively Collecting Feedback**  
+Help us validate SLYKY before Blue Belt submission. Testers needed!
+
+[Start Testing](https://slyky.app/register) • [Watch Demo (EN)](https://youtu.be/DJy2wKaODBE) • [Watch Demo (FR)](https://youtu.be/RayqQuKToPk) • [Submit Feedback](https://docs.google.com/forms/d/e/1FAIpQLScebks7GmTMRizxKA-kLzxeH6MQ8xUlZrWGmBXMmr2zx0txyw/viewform)
+
+---
+
+## 🌐 Live Demo
+
+- **Frontend (Validation Hub)**: [https://slyky.app](https://slyky.app)
+- **Backend API**: [https://slyky.onrender.com](https://slyky.onrender.com)
+- **Dashboard**: [https://slyky.app/dashboard](https://slyky.app/dashboard)
+
+---
+
+## 📽️ Demo Videos
+
+- [English Demo](https://youtu.be/DJy2wKaODBE)
+- [French Demo](https://youtu.be/RayqQuKToPk)
+
+---
+
+## 🧪 How to Participate
+
+1. **Create an account** → [slyky.app/register](https://slyky.app/register)
+2. **Generate a payment request** from the dashboard
+3. **Open the checkout page** (QR code + memo)
+4. **Send a Stellar testnet payment** using any wallet (Lobstr, Albedo, etc.)
+5. **Verify payment confirmation** on the dashboard
+6. **Share your feedback** via the [Google Form](https://docs.google.com/forms/d/e/1FAIpQLScebks7GmTMRizxKA-kLzxeH6MQ8xUlZrWGmBXMmr2zx0txyw/viewform)
+
+⏱ Estimated time: 5–10 minutes
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Backend:** Node.js, TypeScript, Express, Prisma, PostgreSQL (Supabase)
-- **Blockchain:** Stellar SDK, Horizon (Testnet)
-- **Frontend:** React, TypeScript, Tailwind CSS, Vite
-- **Detection:** Polling‑based payment detection (every 10s) using Horizon REST API
-- **Deployment:** Render (backend & frontend)
-- **Monitoring:** cron‑job.org health checks to prevent cold starts
+- **Frontend**: React, TypeScript, Tailwind CSS, Vite
+- **Backend**: Node.js, Express, TypeScript, Prisma
+- **Database**: Supabase PostgreSQL
+- **Blockchain**: Stellar SDK, Horizon (Testnet)
+- **Detection**: Polling‑based payment detection (10‑second interval)
+- **Deployment**: Render (backend & frontend)
+- **Monitoring**: cron‑job.org health checks to prevent cold starts
 
 ---
 
-## 🗺️ Build Roadmap
+## 🏗️ Architecture
 
-- [x] Project approved for Blue Belt
-- [x] Repository setup & license
-- [x] Backend API MVP (payment creation, listing, status)
-- [x] Checkout page MVP (QR code, polling, feedback link)
-- [x] Stellar payment detection (polling with memo matching)
-- [x] Dashboard MVP (list payments, create payment, API key entry)
-- [x] Deployed backend & frontend on Render
-- [x] QR code validated with Lobstr wallet (testnet)
-- [ ] 5+ user onboarding & feedback collection
-- [ ] Final iteration based on feedback
-- [ ] Final submission
-
----
-
-## 🔗 Required Blue Belt Links
-
-- **Live Frontend:** [https://slyky.app](https://slyky.app)
-- **Live Backend API:** [https://slyky.onrender.com](https://slyky.onrender.com)
-- **Demo Video (English):** [https://youtu.be/DJy2wKaODBE](https://youtu.be/DJy2wKaODBE)
-- **Demo Video (French):** [https://youtu.be/RayqQuKToPk](https://youtu.be/RayqQuKToPk)
-- **User Feedback Sheet:** [Slyky MVP – User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLScebks7GmTMRizxKA-kLzxeH6MQ8xUlZrWGmBXMmr2zx0txyw/viewform?usp=dialog)
-- **5+ Testnet Wallet Addresses:** *(to be added after feedback collection)*
-
----
-
-## 🧱 Architecture
-
-### High‑Level Overview
-
-1. **Frontend** (React + Vite) – two pages: `/` (checkout) and `/dashboard`.
-2. **Backend** (Express + TypeScript) – REST API with API key auth, payment state machine, double‑entry ledger, detection orchestrator.
-3. **Database** – Supabase PostgreSQL accessed via Prisma ORM.
-4. **Blockchain** – Stellar testnet Horizon API for transaction detection.
+SLYKY follows an adapter‑based architecture ready for future expansion.
 
 ### Payment Lifecycle
 
-1. Merchant creates a payment via dashboard (or API) – backend generates a unique memo (`sly_xxxx` for XLM).
-2. The checkout page (`/?id=<paymentId>`) displays QR code, address, memo, and polls for status.
-3. Payer sends exact amount with correct memo on Stellar testnet.
-4. Backend detection orchestrator polls Horizon every 10 seconds, fetches recent payments, matches memo, and confirms the payment.
-5. Confirmed payment updates the double‑entry ledger (debit network, credit user) and marks payment status `confirmed`.
-6. Dashboard / checkout reflects the new status; payer is prompted to fill feedback form.
+1. Merchant creates a payment request via dashboard or API
+2. Backend generates a unique Stellar memo and returns a checkout URL
+3. Payer opens the checkout page, scans QR (SEP‑0007), or manually enters address/memo
+4. Payer sends exact amount with the correct memo on Stellar testnet
+5. Backend detection orchestrator polls Horizon every 10 seconds, matches memo, and confirms payment
+6. Confirmed payment updates the double‑entry ledger and notifies the dashboard
 
 ### Detection Method
 
-Because streaming (SSE) was unreliable on some networks, the orchestrator uses a **polling** approach:
-- Every 10 seconds, it calls `GET /accounts/{publicKey}/payments?order=desc&limit=10` on Horizon.
-- It extracts the memo from the transaction (fallback: fetches full transaction via `getTransactionStatus`).
-- If a pending payment with that memo exists, it confirms the payment.
+Because streaming was unreliable in some environments, payment detection uses **polling**:
 
-### Data Model (Prisma)
+- Every 10 seconds the orchestrator fetches recent payments from Horizon for the receiving account
+- Memo is extracted from the transaction (fallback: full transaction lookup)
+- If a pending payment with that memo exists, it is confirmed and recorded in the ledger
 
-The schema includes extension fields for future smart‑contract payments (`paymentType`, `conditions`, `contractId`), even though they are unused in the MVP.
+### Data Model
+
+The Prisma schema includes extension fields (`paymentType`, `conditions`, `contractId`) for future smart‑contract use (Soroban), even though they remain unused in the MVP.
 
 ---
 
 ## 📈 Improvement Plan
 
-After collecting the first round of user feedback, the following improvements were made:
+Based on community feedback, the following improvements have already been implemented:
 
-- **Memo length fix:** Original memos (`slyky_<uuid>`) exceeded Stellar’s 28‑byte memo limit. Shortened to `sly_<uuid22>` for XLM and `slyu_<uuid22>` for USDC.  
-  *Commit:* [`abc123`](https://github.com/HabibX/slyky/commit/abc123) *(replace with actual commit hash)*
-- **CORS policy fix:** Backend CORS updated to allow the live frontend origin, resolving blocked API requests.  
-  *Commit:* [`def456`](https://github.com/HabibX/slyky/commit/def456) *(replace with actual commit hash)*
-- **Public registration endpoint:** Added `POST /v1/register` to allow users to generate API keys directly from the frontend, removing terminal dependency.  
-  *Commit:* [`ghi789`](https://github.com/HabibX/slyky/commit/ghi789) *(replace with actual commit hash)*
+- **Memo length fix** – shortened to 28 bytes (Stellar limit)  
+  *Commit: `abc123`* (replace with actual hash)
+- **CORS policy fix** – allowed new custom domain `slyky.app`  
+  *Commit: `def456`* (replace with actual hash)
+- **Public registration endpoint** – users can now generate API keys from the frontend  
+  *Commit: `ghi789`* (replace with actual hash)
+- **Validation campaign homepage** – mobile‑first, metrics, roadmap, and clear CTA  
+  *Commit: `jkl012`* (replace with actual hash)
 
-Further improvements planned after the next feedback round:
-- Add email notifications on payment confirmation
-- Support for USDC on testnet (USDC adapter already built)
+Future improvements planned after the validation campaign:
+
+- Email notifications on payment confirmation
+- USDC support on testnet (adapter already built)
 - Mobile‑responsive dashboard
+- Real‑time metrics dashboard (replace hardcoded progress)
+
+---
+
+## 🗺️ Public Roadmap
+
+| Phase | Status | Deliverables |
+|-------|--------|--------------|
+| **Phase 1 – MVP** | ✅ Completed | Payment Requests, Checkout Pages, Payment Detection, Merchant Dashboard, Public Registration |
+| **Phase 2 – Validation Campaign** | 🔄 In Progress | Community Testing, Feedback Collection, UX Improvements, Bug Fixes |
+| **Phase 3 – Mainnet Readiness** | 📅 Planned | Merchant Accounts, Analytics, Notifications, Mainnet Testing |
+| **Phase 4 – Infrastructure Expansion** | 🔮 Future | Payment APIs, Invoicing, Business Integrations, Cross‑border Payments |
+
+---
+
+## 📊 Validation Metrics (Current)
+
+| Metric | Progress |
+|--------|----------|
+| Stellar Testers | 0 / 20 |
+| Feedback Forms | 0 / 15 |
+| Detailed Reviews | 0 / 5 |
+| Public Comments | 0 / 3 |
+| Video Testimonials | 0 / 2 |
+
+*These numbers are updated manually during the campaign and can later be sourced from a backend endpoint.*
 
 ---
 
 ## 📄 License
 
-This project is licensed under the Functional Source License 1.1 (FSL-1.1-ALv2). See [LICENSE](./LICENSE) for details.
+This project is licensed under the Functional Source License 1.1 (FSL-1.1-ALv2).  
+See [LICENSE](./LICENSE) for details.
+
+---
+
+Built on Stellar • Stellar Journey to Mastery — Blue Belt Challenge  
+SLYKY Testnet Validation Campaign
