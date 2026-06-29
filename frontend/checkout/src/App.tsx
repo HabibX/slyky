@@ -109,6 +109,9 @@ function App() {
             </span>
           </div>
 
+          <div className="flex justify-center mb-6">
+            <img src="/logo.png" alt="SLYKY Logo" className="w-16 h-16" />
+          </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 mb-4">
             SLYKY Testnet Validation Campaign
           </h1>
@@ -302,6 +305,9 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
+        <div className="flex justify-center mb-2">
+          <img src="/logo.png" alt="SLYKY" className="w-10 h-10" />
+        </div>
         <h1 className="text-2xl font-bold mb-2">Slyky Checkout</h1>
         <p className="text-gray-500 mb-6">Send your payment to the address below</p>
 

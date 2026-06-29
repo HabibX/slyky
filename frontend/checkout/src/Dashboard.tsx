@@ -123,6 +123,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
       <div className="max-w-4xl mx-auto">
+        <img src="/logo.png" alt="SLYKY" className="w-8 h-8" />
         <h1 className="text-3xl font-bold mb-6">Payment History</h1>
 
         {/* Create Payment Section */}
