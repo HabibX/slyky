@@ -6,16 +6,19 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { railRegistry } from './core/railRegistry';
+import { DetectionOrchestrator } from './services/detection';
 import { StellarXLMAdapter } from './adapters/stellar/StellarXLMAdapter';
 import { StellarUSDCAdapter } from './adapters/stellar/StellarUSDCAdapter';
-import { DetectionOrchestrator } from './services/detection';
+import { StellarPYUSDAdapter } from './adapters/stellar/StellarPYUSDAdapter';
 import paymentRoutes from './routes/payments';
 
 import registerRoutes from './routes/register';
+import statsRouter from './routes/stats';
 
 // Register adapters
 railRegistry.register(new StellarXLMAdapter());
 railRegistry.register(new StellarUSDCAdapter());
+railRegistry.register(new StellarPYUSDAdapter());
 
 // Start detection
 const detector = new DetectionOrchestrator();
@@ -61,6 +64,8 @@ app.get('/health', (_req, res) => {
 
 app.use('/v1/payments', paymentRoutes);
 app.use('/v1/register', registerRoutes);
+
+app.use('/v1/stats', statsRouter);
 
 app.listen(PORT, () => {
   console.log(`Slyky backend running on port ${PORT}`);
