@@ -3,7 +3,7 @@ import { paymentService } from './payment';
 import { StellarXLMAdapter } from '../adapters/stellar/StellarXLMAdapter';
 import { StellarUSDCAdapter } from '../adapters/stellar/StellarUSDCAdapter';
 import { StellarPYUSDAdapter } from '../adapters/stellar/StellarPYUSDAdapter';
-import { StellarUSDTAdapter } from '../adapters/stellar/StellarUSDTAdaptert';
+import { StellarUSDTAdapter } from '../adapters/stellar/StellarUSDTAdapter';
 import prisma from './database';
 
 const USDT_ISSUER = 'GBDUK...';
