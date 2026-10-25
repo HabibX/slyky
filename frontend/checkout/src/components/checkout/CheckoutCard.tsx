@@ -2,7 +2,6 @@ import type { PaymentData } from '../../lib/api';
 import { PaymentStatus } from './PaymentStatus';
 import { PaymentDetails } from './PaymentDetails';
 import { QRCodeDisplay } from './QRCodeDisplay';
-import { Button } from '../ui/Button';
 
 const explorerUrl = (txHash: string) => `https://stellar.expert/explorer/public/tx/${txHash}`;
 

@@ -1,13 +1,9 @@
-// frontend/checkout/src/pages/DemoCheckoutPage.tsx
-import { useEffect, useState } from 'react';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 
 const DEMO_PAYMENT_ID = 'demo_payment_placeholder'; // Remplacer par un vrai ID
 
 export function DemoCheckoutPage() {
-  const [showCode, setShowCode] = useState(false);
-
   const snippet = `<iframe
   src="https://slyky.app/checkout/${DEMO_PAYMENT_ID}?embedded=true"
   width="100%"
@@ -70,7 +66,6 @@ export function DemoCheckoutPage() {
           </Card>
         </div>
 
-        {/* Lien vers la doc complète */}
         <div className="mt-8 text-center">
           <a
             href="https://docs.slyky.app/checkout-integration"
