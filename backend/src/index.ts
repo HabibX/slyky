@@ -35,7 +35,7 @@ const corsOptions = {
         if (!origin) return callback(null, true);
 
         const allowedOrigins = [
-            'https://slyky-app.onrender.com',
+            'https://slyky-backend.onrender.com',
             'http://localhost:5173',            
             'https://slyky.app',
             'https://www.slyky.app'
